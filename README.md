@@ -1,5 +1,5 @@
 ---
-title: Test
+title: HuggingGPT
 emoji: 😻
 colorFrom: gray
 colorTo: yellow
