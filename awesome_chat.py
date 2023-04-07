@@ -835,12 +835,14 @@ def chat_huggingface(messages, openaikey = None, huggingfacetoken = None, return
     logger.info("*"*80)
     logger.info(f"input: {input}")
 
-    task_str = parse_task(context, input, openaikey).strip()
+    task_str = parse_task(context, input, openaikey)
     logger.info(task_str)
 
     if "error" in task_str:
         return {"message": "You exceeded your current quota, please check your plan and billing details."}
-
+    else:
+        task_str = task_str.strip()
+        
     if task_str == "[]":  # using LLM response for empty task
         record_case(success=False, **{"input": input, "task": [], "reason": "task parsing fail: empty", "op": "chitchat"})
         response = chitchat(messages, openaikey)

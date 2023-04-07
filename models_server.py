@@ -374,10 +374,16 @@ def models(model_id, data):
             # pipe.enable_model_cpu_offload()
             prompt = data["text"]
             video_frames = pipe(prompt, num_inference_steps=50, num_frames=40).frames
-            video_path = export_to_video(video_frames)
             file_name = str(uuid.uuid4())[:4]
-            os.system(f"LD_LIBRARY_PATH=/usr/local/lib /usr/local/bin/ffmpeg -i {video_path} -vcodec libx264 public/videos/{file_name}.mp4")
-            result = {"path": f"/videos/{file_name}.mp4"}
+            video_path = export_to_video(video_frames, f"public/videos/{file_name}.mp4")
+            
+            new_file_name = str(uuid.uuid4())[:4]
+            os.system(f"ffmpeg -i {video_path} -vcodec libx264 public/videos/{new_file_name}.mp4")
+
+            if os.path.exists(f"public/videos/{new_file_name}.mp4"): 
+                result = {"path": f"/videos/{new_file_name}.mp4"}
+            else:
+                result = {"path": f"/videos/{file_name}.mp4"}
 
         # controlnet
         if model_id.startswith("lllyasviel/sd-controlnet-"):
