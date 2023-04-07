@@ -98,28 +98,27 @@ def bot(messages):
 with gr.Blocks() as demo:
     gr.Markdown("<h1><center>HuggingGPT</center></h1>")
     gr.Markdown("<p align='center'><img src='https://i.ibb.co/qNH3Jym/logo.png' height='25' width='95'></p>")
-
     gr.Markdown("<p align='center' style='font-size: 20px;'>A system to connect LLMs with ML community. See our <a href='https://github.com/microsoft/JARVIS'>Project</a> and <a href='http://arxiv.org/abs/2303.17580'>Paper</a>.</p>")
-    with gr.Row().style(equal_height=True):
+    with gr.Row().style():
         with gr.Column(scale=0.85):
             openai_api_key = gr.Textbox(
                 show_label=False,
                 placeholder="Set your OpenAI API key here and press Enter",
                 lines=1,
                 type="password",
-            )
+            ).style(container=False)
         with gr.Column(scale=0.15, min_width=0):
             btn1 = gr.Button("Submit").style(full_height=True)
 
     chatbot = gr.Chatbot([], elem_id="chatbot").style(height=500)
 
-    with gr.Row().style(equal_height=True):
+    with gr.Row().style():
         with gr.Column(scale=0.85):
             txt = gr.Textbox(
                 show_label=False,
                 placeholder="Enter text and press enter. The url of the multimedia resource must contain the extension name.",
                 lines=1,
-            )
+            ).style(container=False)
         with gr.Column(scale=0.15, min_width=0):
             btn2 = gr.Button("Send").style(full_height=True)
 

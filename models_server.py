@@ -67,7 +67,9 @@ if config["proxy"]:
 
 start = time.time()
 
+# local_models = "models/"
 local_models = ""
+
 
 def load_pipes(local_deployment):
     other_pipes = {}
@@ -266,29 +268,24 @@ def load_pipes(local_deployment):
             f"{local_models}runwayml/stable-diffusion-v1-5", controlnet=controlnet, torch_dtype=torch.float16
         )
 
-        def mlsd_control_network():
-            model = MobileV2_MLSD_Large()
-            model.load_state_dict(torch.load(f"{local_models}lllyasviel/ControlNet/annotator/ckpts/mlsd_large_512_fp32.pth"), strict=True)
-            return MLSDdetector(model)
 
-
-        hed_network = Network(f"{local_models}lllyasviel/ControlNet/annotator/ckpts/network-bsds500.pth")
+        hed_network = HEDdetector.from_pretrained('lllyasviel/ControlNet')
 
         controlnet_sd_pipes = {
             "openpose-control": {
-                "model": OpenposeDetector(Body(f"{local_models}lllyasviel/ControlNet/annotator/ckpts/body_pose_model.pth"))
+                "model": OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
             },
             "mlsd-control": {
-                "model": mlsd_control_network()
+                "model": MLSDdetector.from_pretrained('lllyasviel/ControlNet')
             },
             "hed-control": {
-                "model": HEDdetector(hed_network)
+                "model": hed_network
             },
             "scribble-control": {
-                "model": HEDdetector(hed_network)
+                "model": hed_network
             },
             "midas-control": {
-                "model": MidasDetector(model_path=f"{local_models}lllyasviel/ControlNet/annotator/ckpts/dpt_hybrid-midas-501f0c75.pt")
+                "model": MidasDetector.from_pretrained('lllyasviel/ControlNet')
             },
             "canny-control": {
                 "model": CannyDetector()
