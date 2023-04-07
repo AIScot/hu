@@ -4,6 +4,7 @@ import re
 from diffusers.utils import load_image
 import requests
 from awesome_chat import chat_huggingface
+from awesome_chat import set_huggingface_token, get_huggingface_token
 import os
 
 all_messages = []
@@ -38,14 +39,18 @@ def extract_medias(message):
 
     return image_urls, audio_urls, video_urls
 
-def set_openai_key(openai_key):
+def set_key(openai_key):
     global OPENAI_KEY
     OPENAI_KEY = openai_key
     return OPENAI_KEY
 
+def set_token(huggingface_token):
+    set_huggingface_token(huggingface_token)
+    return huggingface_token
+
 def add_text(messages, message):
     if len(OPENAI_KEY) == 0 or not OPENAI_KEY.startswith("sk-"):
-        return messages, "Please set your OpenAI API key first."
+        return messages, "Please set your OpenAI API key or Hugging Face token first!!!"
     add_message(message, "user")
     messages = messages + [(message, None)]
     image_urls, audio_urls, video_urls = extract_medias(message)
@@ -104,11 +109,20 @@ with gr.Blocks() as demo:
             openai_api_key = gr.Textbox(
                 show_label=False,
                 placeholder="Set your OpenAI API key here and press Enter",
-                lines=1,
-                type="password",
+                lines=1
             ).style(container=False)
         with gr.Column(scale=0.15, min_width=0):
             btn1 = gr.Button("Submit").style(full_height=True)
+
+    with gr.Row().style():
+        with gr.Column(scale=0.85):
+            hugging_face_token = gr.Textbox(
+                show_label=False,
+                placeholder="Set your Hugging Face Token here and press Enter",
+                lines=1
+            ).style(container=False)
+        with gr.Column(scale=0.15, min_width=0):
+            btn3 = gr.Button("Submit").style(full_height=True)
 
     chatbot = gr.Chatbot([], elem_id="chatbot").style(height=500)
 
@@ -122,16 +136,12 @@ with gr.Blocks() as demo:
         with gr.Column(scale=0.15, min_width=0):
             btn2 = gr.Button("Send").style(full_height=True)
 
-    txt.submit(add_text, [chatbot, txt], [chatbot, txt]).then(
-        bot, chatbot, chatbot
-    )
-    openai_api_key.submit(set_openai_key, [openai_api_key], [openai_api_key])
-
-    btn1.click(set_openai_key, [openai_api_key], [openai_api_key])
-
-    btn2.click(add_text, [chatbot, txt], [chatbot, txt]).then(
-        bot, chatbot, chatbot
-    )
+    openai_api_key.submit(set_key, [openai_api_key], [openai_api_key])
+    txt.submit(add_text, [chatbot, txt], [chatbot, txt]).then(bot, chatbot, chatbot)
+    hugging_face_token.submit(set_token, [hugging_face_token], [hugging_face_token])
+    btn1.click(set_key, [openai_api_key], [openai_api_key])
+    btn2.click(add_text, [chatbot, txt], [chatbot, txt]).then(bot, chatbot, chatbot)
+    btn3.click(set_token, [hugging_face_token], [hugging_face_token])
 
     gr.Examples(
         examples=["Given a collection of image A: /examples/a.jpg, B: /examples/b.jpg, C: /examples/c.jpg, please tell me how many zebras in these picture?",

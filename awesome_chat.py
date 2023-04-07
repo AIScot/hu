@@ -18,10 +18,6 @@ from diffusers.utils import load_image
 from pydub import AudioSegment
 import threading
 from queue import Queue
-import flask
-from flask import request, jsonify
-import waitress
-from flask_cors import CORS
 from get_token_ids import get_token_ids_for_task_parsing, get_token_ids_for_choose_model, count_tokens, get_max_context_length
 from huggingface_hub.inference_api import InferenceApi
 from huggingface_hub.inference_api import ALL_TASKS
@@ -100,7 +96,6 @@ if config["proxy"]:
 
 inference_mode = config["inference_mode"]
 
-
 parse_task_demos_or_presteps = open(config["demos_or_presteps"]["parse_task"], "r").read()
 choose_model_demos_or_presteps = open(config["demos_or_presteps"]["choose_model"], "r").read()
 response_results_demos_or_presteps = open(config["demos_or_presteps"]["response_results"], "r").read()
@@ -124,11 +119,14 @@ METADATAS = {}
 for model in MODELS:
     METADATAS[model["id"]] = model
 
-HUGGINGFACE_HEADERS = {}
-if config["huggingface"]["token"]:
-    HUGGINGFACE_HEADERS = {
-        "Authorization": f"Bearer {config['huggingface']['token']}",
-    }
+HUGGINGFACE_TOKEN = ""
+
+def set_huggingface_token(token):
+    global HUGGINGFACE_TOKEN
+    HUGGINGFACE_TOKEN = token
+
+def get_huggingface_token():
+    return HUGGINGFACE_TOKEN
 
 def convert_chat_to_completion(data):
     messages = data.pop('messages', [])
@@ -346,8 +344,11 @@ def response_results(input, results, openaikey=None):
     return send_request(data)
 
 def huggingface_model_inference(model_id, data, task):
+    HUGGINGFACE_HEADERS = {
+        "Authorization": f"Bearer {HUGGINGFACE_TOKEN}",
+    }
     task_url = f"https://api-inference.huggingface.co/models/{model_id}" # InferenceApi does not yet support some tasks
-    inference = InferenceApi(repo_id=model_id, token=config["huggingface"]["token"])
+    inference = InferenceApi(repo_id=model_id, token=HUGGINGFACE_TOKEN)
     
     # NLP tasks
     if task == "question-answering":
@@ -573,6 +574,9 @@ def local_model_inference(model_id, data, task):
 
 
 def model_inference(model_id, data, hosted_on, task):
+    HUGGINGFACE_HEADERS = {
+        "Authorization": f"Bearer {HUGGINGFACE_TOKEN}",
+    }
     if hosted_on == "unknown":
         r = status(model_id)
         logger.debug("Local Server Status: " + str(r.json()))
@@ -611,11 +615,13 @@ def get_model_status(model_id, url, headers, queue = None):
             queue.put((model_id, False, None))
         return False
 
-def get_avaliable_models(candidates, topk=5):
+def get_avaliable_models(candidates, topk=10):
     all_available_models = {"local": [], "huggingface": []}
     threads = []
     result_queue = Queue()
-
+    HUGGINGFACE_HEADERS = {
+        "Authorization": f"Bearer {HUGGINGFACE_TOKEN}",
+    }
     for candidate in candidates:
         model_id = candidate["id"]
 
@@ -766,7 +772,7 @@ def run_task(input, command, results, openaikey = None):
             results[id] = collect_result(command, choose, inference_result)
             return False
 
-        candidates = MODELS_MAP[task][:10]
+        candidates = MODELS_MAP[task][:20]
         all_avaliable_models = get_avaliable_models(candidates, config["num_candidate_models"])
         all_avaliable_model_ids = all_avaliable_models["local"] + all_avaliable_models["huggingface"]
         logger.debug(f"avaliable models on {command['task']}: {all_avaliable_models}")
