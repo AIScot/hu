@@ -115,7 +115,8 @@ with gr.Blocks() as demo:
             openai_api_key = gr.Textbox(
                 show_label=False,
                 placeholder="Set your OpenAI API key here and press Enter",
-                lines=1
+                lines=1,
+                type="password"
             ).style(container=False)
         with gr.Column(scale=0.15, min_width=0):
             btn1 = gr.Button("Submit").style(full_height=True)
@@ -125,7 +126,8 @@ with gr.Blocks() as demo:
             hugging_face_token = gr.Textbox(
                 show_label=False,
                 placeholder="Set your Hugging Face Token here and press Enter",
-                lines=1
+                lines=1,
+                type="password"
             ).style(container=False)
         with gr.Column(scale=0.15, min_width=0):
             btn3 = gr.Button("Submit").style(full_height=True)

@@ -78,9 +78,9 @@ def load_pipes(local_deployment):
     if local_deployment in ["full"]:
         other_pipes = {
             "nlpconnect/vit-gpt2-image-captioning":{
-                "model": VisionEncoderDecoderModel.from_pretrained(f"nlpconnect/vit-gpt2-image-captioning"),
-                "feature_extractor": ViTImageProcessor.from_pretrained(f"nlpconnect/vit-gpt2-image-captioning"),
-                "tokenizer": AutoTokenizer.from_pretrained(f"nlpconnect/vit-gpt2-image-captioning"),
+                "model": VisionEncoderDecoderModel.from_pretrained(f"{local_models}nlpconnect/vit-gpt2-image-captioning"),
+                "feature_extractor": ViTImageProcessor.from_pretrained(f"{local_models}nlpconnect/vit-gpt2-image-captioning"),
+                "tokenizer": AutoTokenizer.from_pretrained(f"{local_models}nlpconnect/vit-gpt2-image-captioning"),
                 "device": "cuda:0"
             },
             # "Salesforce/blip-image-captioning-large": {
@@ -89,7 +89,7 @@ def load_pipes(local_deployment):
             #     "device": "cuda:0"
             # },
             "damo-vilab/text-to-video-ms-1.7b": {
-                "model": DiffusionPipeline.from_pretrained(f"damo-vilab/text-to-video-ms-1.7b", torch_dtype=torch.float16, variant="fp16"),
+                "model": DiffusionPipeline.from_pretrained(f"{local_models}damo-vilab/text-to-video-ms-1.7b", torch_dtype=torch.float16, variant="fp16"),
                 "device": "cuda:0"
             },
             # "facebook/maskformer-swin-large-ade": {
@@ -112,11 +112,11 @@ def load_pipes(local_deployment):
                 "device": "cuda:0"
             },
             "espnet/kan-bayashi_ljspeech_vits": {
-                "model": Text2Speech.from_pretrained(f"espnet/kan-bayashi_ljspeech_vits"),
+                "model": Text2Speech.from_pretrained("espnet/kan-bayashi_ljspeech_vits"),
                 "device": "cuda:0"
             },
             "lambdalabs/sd-image-variations-diffusers": {
-                "model": DiffusionPipeline.from_pretrained(f"lambdalabs/sd-image-variations-diffusers"), #torch_dtype=torch.float16
+                "model": DiffusionPipeline.from_pretrained(f"{local_models}lambdalabs/sd-image-variations-diffusers"), #torch_dtype=torch.float16
                 "device": "cuda:0"
             },
             # "CompVis/stable-diffusion-v1-4": {
@@ -128,7 +128,7 @@ def load_pipes(local_deployment):
             #     "device": "cuda:0"
             # },
             "runwayml/stable-diffusion-v1-5": {
-                "model": DiffusionPipeline.from_pretrained(f"runwayml/stable-diffusion-v1-5"),
+                "model": DiffusionPipeline.from_pretrained(f"{local_models}runwayml/stable-diffusion-v1-5"),
                 "device": "cuda:0"
             },
             # "microsoft/speecht5_tts":{
@@ -143,10 +143,10 @@ def load_pipes(local_deployment):
             #     "device": "cuda:0"
             # },
             "microsoft/speecht5_vc":{
-                "processor": SpeechT5Processor.from_pretrained(f"microsoft/speecht5_vc"),
-                "model": SpeechT5ForSpeechToSpeech.from_pretrained(f"microsoft/speecht5_vc"),
-                "vocoder": SpeechT5HifiGan.from_pretrained(f"microsoft/speecht5_hifigan"),
-                "embeddings_dataset": load_dataset(f"Matthijs/cmu-arctic-xvectors", split="validation"),
+                "processor": SpeechT5Processor.from_pretrained(f"{local_models}microsoft/speecht5_vc"),
+                "model": SpeechT5ForSpeechToSpeech.from_pretrained(f"{local_models}microsoft/speecht5_vc"),
+                "vocoder": SpeechT5HifiGan.from_pretrained(f"{local_models}microsoft/speecht5_hifigan"),
+                "embeddings_dataset": load_dataset(f"{local_models}Matthijs/cmu-arctic-xvectors", split="validation"),
                 "device": "cuda:0"
             },
             # "julien-c/wine-quality": {
@@ -158,13 +158,13 @@ def load_pipes(local_deployment):
             #     "device": "cuda:0"
             # },
             "facebook/maskformer-swin-base-coco": {
-                "feature_extractor": MaskFormerFeatureExtractor.from_pretrained(f"facebook/maskformer-swin-base-coco"),
-                "model": MaskFormerForInstanceSegmentation.from_pretrained(f"facebook/maskformer-swin-base-coco"),
+                "feature_extractor": MaskFormerFeatureExtractor.from_pretrained(f"{local_models}facebook/maskformer-swin-base-coco"),
+                "model": MaskFormerForInstanceSegmentation.from_pretrained(f"{local_models}facebook/maskformer-swin-base-coco"),
                 "device": "cuda:0"
             },
             "Intel/dpt-hybrid-midas": {
-                "model": DPTForDepthEstimation.from_pretrained(f"Intel/dpt-hybrid-midas", low_cpu_mem_usage=True),
-                "feature_extractor": DPTFeatureExtractor.from_pretrained(f"Intel/dpt-hybrid-midas"),
+                "model": DPTForDepthEstimation.from_pretrained(f"{local_models}Intel/dpt-hybrid-midas", low_cpu_mem_usage=True),
+                "feature_extractor": DPTFeatureExtractor.from_pretrained(f"{local_models}Intel/dpt-hybrid-midas"),
                 "device": "cuda:0"
             }
         }
@@ -176,15 +176,15 @@ def load_pipes(local_deployment):
             #     "device": "cuda:0"
             # },
             "openai/whisper-base": {
-                "model": pipeline(task="automatic-speech-recognition", model=f"openai/whisper-base"), 
+                "model": pipeline(task="automatic-speech-recognition", model=f"{local_models}openai/whisper-base"), 
                 "device": "cuda:0"
             },
             "microsoft/speecht5_asr": {
-                "model": pipeline(task="automatic-speech-recognition", model=f"microsoft/speecht5_asr"), 
+                "model": pipeline(task="automatic-speech-recognition", model=f"{local_models}microsoft/speecht5_asr"), 
                 "device": "cuda:0"
             },
             "Intel/dpt-large": {
-                "model": pipeline(task="depth-estimation", model=f"Intel/dpt-large"), 
+                "model": pipeline(task="depth-estimation", model=f"{local_models}Intel/dpt-large"), 
                 "device": "cuda:0"
             },
             # "microsoft/beit-base-patch16-224-pt22k-ft22k": {
@@ -192,11 +192,11 @@ def load_pipes(local_deployment):
             #     "device": "cuda:0"
             # },
             "facebook/detr-resnet-50-panoptic": {
-                "model": pipeline(task="image-segmentation", model=f"facebook/detr-resnet-50-panoptic"), 
+                "model": pipeline(task="image-segmentation", model=f"{local_models}facebook/detr-resnet-50-panoptic"), 
                 "device": "cuda:0"
             },
             "facebook/detr-resnet-101": {
-                "model": pipeline(task="object-detection", model=f"facebook/detr-resnet-101"), 
+                "model": pipeline(task="object-detection", model=f"{local_models}facebook/detr-resnet-101"), 
                 "device": "cuda:0"
             },
             # "openai/clip-vit-large-patch14": {
@@ -204,7 +204,7 @@ def load_pipes(local_deployment):
             #     "device": "cuda:0"
             # },
             "google/owlvit-base-patch32": {
-                "model": pipeline(task="zero-shot-object-detection", model=f"google/owlvit-base-patch32"), 
+                "model": pipeline(task="zero-shot-object-detection", model=f"{local_models}google/owlvit-base-patch32"), 
                 "device": "cuda:0"
             },
             # "microsoft/DialoGPT-medium": {
@@ -248,15 +248,15 @@ def load_pipes(local_deployment):
             #     "device": "cuda:0"
             # },
             "impira/layoutlm-document-qa": {
-                "model": pipeline(task="document-question-answering", model=f"impira/layoutlm-document-qa"), 
+                "model": pipeline(task="document-question-answering", model=f"{local_models}impira/layoutlm-document-qa"), 
                 "device": "cuda:0"
             },
             "ydshieh/vit-gpt2-coco-en": {
-                "model": pipeline(task="image-to-text", model=f"ydshieh/vit-gpt2-coco-en"), 
+                "model": pipeline(task="image-to-text", model=f"{local_models}ydshieh/vit-gpt2-coco-en"), 
                 "device": "cuda:0"
             },
             "dandelin/vilt-b32-finetuned-vqa": {
-                "model": pipeline(task="visual-question-answering", model=f"dandelin/vilt-b32-finetuned-vqa"), 
+                "model": pipeline(task="visual-question-answering", model=f"{local_models}dandelin/vilt-b32-finetuned-vqa"), 
                 "device": "cuda:0"
             }
         }

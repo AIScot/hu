@@ -152,6 +152,8 @@ def send_request(data):
     
     response = requests.post(endpoint, json=data, headers=HEADER, proxies=PROXY)
     logger.debug(response.text.strip())
+    if "choices" not in response.json():
+        return response.json()
     if use_completion:
         return response.json()["choices"][0]["text"].strip()
     else:
@@ -576,14 +578,14 @@ def model_inference(model_id, data, hosted_on, task, huggingfacetoken=None):
         HUGGINGFACE_HEADERS = None
     if hosted_on == "unknown":
         r = status(model_id)
-        logger.debug("Local Server Status: " + str(r.json()))
-        if r.status_code == 200 and "loaded" in r.json() and r.json()["loaded"]:
+        logger.debug("Local Server Status: " + str(r))
+        if "loaded" in r and r["loaded"]:
             hosted_on = "local"
         else:
             huggingfaceStatusUrl = f"https://api-inference.huggingface.co/status/{model_id}"
             r = requests.get(huggingfaceStatusUrl, headers=HUGGINGFACE_HEADERS, proxies=PROXY)
             logger.debug("Huggingface Status: " + str(r.json()))
-            if r.status_code == 200 and "loaded" in r.json() and r.json()["loaded"]:
+            if "loaded" in r and r["loaded"]:
                 hosted_on = "huggingface"
     try:
         if hosted_on == "local":
@@ -603,7 +605,7 @@ def get_model_status(model_id, url, headers, queue = None):
         r = requests.get(url, headers=headers, proxies=PROXY)
     else:
         r = status(model_id)
-    if r.status_code == 200 and "loaded" in r.json() and r.json()["loaded"]:
+    if "loaded" in r and r["loaded"]:
         if queue:
             queue.put((model_id, True, endpoint_type))
         return True
@@ -835,6 +837,9 @@ def chat_huggingface(messages, openaikey = None, huggingfacetoken = None, return
 
     task_str = parse_task(context, input, openaikey).strip()
     logger.info(task_str)
+
+    if "error" in task_str:
+        return {"message": "You exceeded your current quota, please check your plan and billing details."}
 
     if task_str == "[]":  # using LLM response for empty task
         record_case(success=False, **{"input": input, "task": [], "reason": "task parsing fail: empty", "op": "chitchat"})
