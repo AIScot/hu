@@ -3,7 +3,7 @@ openai:
 huggingface:
   token: # required: huggingface token @ https://huggingface.co/settings/tokens
 dev: false
-debug: false
+debug: true
 log_file: logs/debug.log
 model: text-davinci-003 # text-davinci-003
 use_completion: true
@@ -13,7 +13,7 @@ num_candidate_models: 5
 max_description_length: 100
 proxy: 
 logit_bias:
-  parse_task: 0.1
+  parse_task: 0.5
   choose_model: 5
 tprompt:
   parse_task: >-

@@ -119,15 +119,6 @@ METADATAS = {}
 for model in MODELS:
     METADATAS[model["id"]] = model
 
-HUGGINGFACE_TOKEN = ""
-
-def set_huggingface_token(token):
-    global HUGGINGFACE_TOKEN
-    HUGGINGFACE_TOKEN = token
-
-def get_huggingface_token():
-    return HUGGINGFACE_TOKEN
-
 def convert_chat_to_completion(data):
     messages = data.pop('messages', [])
     tprompt = ""
@@ -343,12 +334,15 @@ def response_results(input, results, openaikey=None):
     }
     return send_request(data)
 
-def huggingface_model_inference(model_id, data, task):
-    HUGGINGFACE_HEADERS = {
-        "Authorization": f"Bearer {HUGGINGFACE_TOKEN}",
+def huggingface_model_inference(model_id, data, task, huggingfacetoken=None):
+    if huggingfacetoken is None:
+        HUGGINGFACE_HEADERS = {}
+    else:
+        HUGGINGFACE_HEADERS = {
+            "Authorization": f"Bearer {huggingfacetoken}",
     }
     task_url = f"https://api-inference.huggingface.co/models/{model_id}" # InferenceApi does not yet support some tasks
-    inference = InferenceApi(repo_id=model_id, token=HUGGINGFACE_TOKEN)
+    inference = InferenceApi(repo_id=model_id, token=huggingfacetoken)
     
     # NLP tasks
     if task == "question-answering":
@@ -573,10 +567,13 @@ def local_model_inference(model_id, data, task):
         return results
 
 
-def model_inference(model_id, data, hosted_on, task):
-    HUGGINGFACE_HEADERS = {
-        "Authorization": f"Bearer {HUGGINGFACE_TOKEN}",
-    }
+def model_inference(model_id, data, hosted_on, task, huggingfacetoken=None):
+    if huggingfacetoken:
+        HUGGINGFACE_HEADERS = {
+            "Authorization": f"Bearer {huggingfacetoken}",
+        }
+    else:
+        HUGGINGFACE_HEADERS = None
     if hosted_on == "unknown":
         r = status(model_id)
         logger.debug("Local Server Status: " + str(r.json()))
@@ -592,7 +589,7 @@ def model_inference(model_id, data, hosted_on, task):
         if hosted_on == "local":
             inference_result = local_model_inference(model_id, data, task)
         elif hosted_on == "huggingface":
-            inference_result = huggingface_model_inference(model_id, data, task)
+            inference_result = huggingface_model_inference(model_id, data, task, huggingfacetoken)
     except Exception as e:
         print(e)
         traceback.print_exc()
@@ -615,12 +612,12 @@ def get_model_status(model_id, url, headers, queue = None):
             queue.put((model_id, False, None))
         return False
 
-def get_avaliable_models(candidates, topk=10):
+def get_avaliable_models(candidates, topk=10, huggingfacetoken = None):
     all_available_models = {"local": [], "huggingface": []}
     threads = []
     result_queue = Queue()
     HUGGINGFACE_HEADERS = {
-        "Authorization": f"Bearer {HUGGINGFACE_TOKEN}",
+        "Authorization": f"Bearer {huggingfacetoken}",
     }
     for candidate in candidates:
         model_id = candidate["id"]
@@ -658,7 +655,7 @@ def collect_result(command, choose, inference_result):
     return result
 
 
-def run_task(input, command, results, openaikey = None):
+def run_task(input, command, results, openaikey = None, huggingfacetoken = None):
     id = command["id"]
     args = command["args"]
     task = command["task"]
@@ -769,11 +766,11 @@ def run_task(input, command, results, openaikey = None):
             logger.warning(f"no available models on {task} task.")
             record_case(success=False, **{"input": input, "task": command, "reason": f"task not support: {command['task']}", "op":"message"})
             inference_result = {"error": f"{command['task']} not found in available tasks."}
-            results[id] = collect_result(command, choose, inference_result)
+            results[id] = collect_result(command, "", inference_result)
             return False
 
         candidates = MODELS_MAP[task][:20]
-        all_avaliable_models = get_avaliable_models(candidates, config["num_candidate_models"])
+        all_avaliable_models = get_avaliable_models(candidates, config["num_candidate_models"], huggingfacetoken)
         all_avaliable_model_ids = all_avaliable_models["local"] + all_avaliable_models["huggingface"]
         logger.debug(f"avaliable models on {command['task']}: {all_avaliable_models}")
 
@@ -818,7 +815,7 @@ def run_task(input, command, results, openaikey = None):
                 choose_str = find_json(choose_str)
                 best_model_id, reason, choose  = get_id_reason(choose_str)
                 hosted_on = "local" if best_model_id in all_avaliable_models["local"] else "huggingface"
-    inference_result = model_inference(best_model_id, args, hosted_on, command['task'])
+    inference_result = model_inference(best_model_id, args, hosted_on, command['task'], huggingfacetoken)
 
     if "error" in inference_result:
         logger.warning(f"Inference error: {inference_result['error']}")
@@ -829,7 +826,7 @@ def run_task(input, command, results, openaikey = None):
     results[id] = collect_result(command, choose, inference_result)
     return True
 
-def chat_huggingface(messages, openaikey = None, return_planning = False, return_results = False):
+def chat_huggingface(messages, openaikey = None, huggingfacetoken = None, return_planning = False, return_results = False):
     start = time.time()
     context = messages[:-1]
     input = messages[-1]["content"]
@@ -871,7 +868,7 @@ def chat_huggingface(messages, openaikey = None, return_planning = False, return
             # logger.debug(f"d.keys(): {d.keys()}, dep: {dep}")
             if len(list(set(dep).intersection(d.keys()))) == len(dep) or dep[0] == -1:
                 tasks.remove(task)
-                thread = threading.Thread(target=run_task, args=(input, task, d, openaikey))
+                thread = threading.Thread(target=run_task, args=(input, task, d, openaikey, huggingfacetoken))
                 thread.start()
                 threads.append(thread)
         if num_threads == len(threads):
