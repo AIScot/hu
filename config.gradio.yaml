@@ -8,7 +8,7 @@ log_file: logs/debug.log
 model: text-davinci-003 # text-davinci-003
 use_completion: true
 inference_mode: hybrid # local, huggingface or hybrid
-local_deployment: full # minimal, standard or full
+local_deployment: standard # minimal, standard or full
 num_candidate_models: 5
 max_description_length: 100
 proxy: 
