@@ -839,10 +839,10 @@ def chat_huggingface(messages, openaikey = None, huggingfacetoken = None, return
     logger.info(task_str)
 
     if "error" in task_str:
-        return {"message": "You exceeded your current quota, please check your plan and billing details."}
+        return {"message": task_str["error"]["message"]}
     else:
         task_str = task_str.strip()
-        
+
     if task_str == "[]":  # using LLM response for empty task
         record_case(success=False, **{"input": input, "task": [], "reason": "task parsing fail: empty", "op": "chitchat"})
         response = chitchat(messages, openaikey)
@@ -873,6 +873,11 @@ def chat_huggingface(messages, openaikey = None, huggingfacetoken = None, return
         for task in tasks:
             dep = task["dep"]
             # logger.debug(f"d.keys(): {d.keys()}, dep: {dep}")
+            for dep_id in dep:
+                if dep_id >= task["id"]:
+                    task["dep"] = [-1]
+                    dep = [-1]
+                    break
             if len(list(set(dep).intersection(d.keys()))) == len(dep) or dep[0] == -1:
                 tasks.remove(task)
                 thread = threading.Thread(target=run_task, args=(input, task, d, openaikey, huggingfacetoken))

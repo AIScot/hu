@@ -98,20 +98,20 @@ class Client:
             if not image_url.startswith("http"):
                 image_url = image_url.replace("public/", "")
                 messages = messages + [((None, (f"public/{image_url}",)))]
-            else:
-                messages = messages + [((None, (f"{image_url}",)))]
+            # else:
+            #     messages = messages + [((None, (f"{image_url}",)))]
         for audio_url in audio_urls:
             if not audio_url.startswith("http"):
                 audio_url = audio_url.replace("public/", "")
                 messages = messages + [((None, (f"public/{audio_url}",)))]
-            else:
-                messages = messages + [((None, (f"{audio_url}",)))]
+            # else:
+            #     messages = messages + [((None, (f"{audio_url}",)))]
         for video_url in video_urls:
             if not video_url.startswith("http"):
                 video_url = video_url.replace("public/", "")
                 messages = messages + [((None, (f"public/{video_url}",)))]
-            else:
-                messages = messages + [((None, (f"{video_url}",)))]
+            # else:
+            #     messages = messages + [((None, (f"{video_url}",)))]
         return messages
 
 with gr.Blocks() as demo:
