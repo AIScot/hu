@@ -162,10 +162,10 @@ def load_pipes(local_deployment):
             #     "tokenizer": AutoTokenizer.from_pretrained(f"{local_models}nlpconnect/vit-gpt2-image-captioning"),
             #     "device": "cuda:0"
             # },
-            # "espnet/kan-bayashi_ljspeech_vits": {
-            #     "model": Text2Speech.from_pretrained("espnet/kan-bayashi_ljspeech_vits"),
-            #     "device": "cuda:0"
-            # },
+            "espnet/kan-bayashi_ljspeech_vits": {
+                "model": Text2Speech.from_pretrained("espnet/kan-bayashi_ljspeech_vits"),
+                "device": "cuda:0"
+            },
             # "lambdalabs/sd-image-variations-diffusers": {
             #     "model": DiffusionPipeline.from_pretrained(f"{local_models}lambdalabs/sd-image-variations-diffusers"), #torch_dtype=torch.float16
             #     "device": "cuda:0"

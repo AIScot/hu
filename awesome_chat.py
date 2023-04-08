@@ -839,7 +839,7 @@ def chat_huggingface(messages, openaikey = None, huggingfacetoken = None, return
     logger.info(task_str)
 
     if "error" in task_str:
-        return {"message": task_str["error"]["message"]}
+        return {"message": str(task_str)}
     else:
         task_str = task_str.strip()
 

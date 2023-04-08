@@ -33,6 +33,12 @@ class Client:
         self.all_messages.append(message)
 
     def extract_medias(self, message):
+        # url_pattern = re.compile(r"(http(s?):|\/)?([\.\/_\w:-])*?")
+        urls = []
+        # for match in url_pattern.finditer(message):
+        #     if match.group(0) not in urls:
+        #         urls.append(match.group(0))
+
         image_pattern = re.compile(r"(http(s?):|\/)?([\.\/_\w:-])*?\.(jpg|jpeg|tiff|gif|png)")
         image_urls = []
         for match in image_pattern.finditer(message):
@@ -51,14 +57,14 @@ class Client:
             if match.group(0) not in video_urls:
                 video_urls.append(match.group(0))
 
-        return image_urls, audio_urls, video_urls
+        return urls, image_urls, audio_urls, video_urls
 
     def add_text(self, messages, message):
         if len(self.OPENAI_KEY) == 0 or not self.OPENAI_KEY.startswith("sk-") or len(self.HUGGINGFACE_TOKEN) == 0 or not self.HUGGINGFACE_TOKEN.startswith("hf_"):
-            return messages, "Please set your OpenAI API key or Hugging Face token first!!!"
+            return messages, "Please set your OpenAI API key and Hugging Face token first!!!"
         self.add_message(message, "user")
         messages = messages + [(message, None)]
-        image_urls, audio_urls, video_urls = self.extract_medias(message)
+        urls, image_urls, audio_urls, video_urls = self.extract_medias(message)
 
         for image_url in image_urls:
             if not image_url.startswith("http") and not image_url.startswith("public"):
@@ -91,7 +97,7 @@ class Client:
         if len(self.OPENAI_KEY) == 0 or not self.OPENAI_KEY.startswith("sk-") or len(self.HUGGINGFACE_TOKEN) == 0 or not self.HUGGINGFACE_TOKEN.startswith("hf_"):
             return messages
         message = chat_huggingface(self.all_messages, self.OPENAI_KEY, self.HUGGINGFACE_TOKEN)["message"]
-        image_urls, audio_urls, video_urls = self.extract_medias(message)
+        urls, image_urls, audio_urls, video_urls = self.extract_medias(message)
         self.add_message(message, "assistant")
         messages[-1][1] = message
         for image_url in image_urls:
@@ -119,6 +125,7 @@ with gr.Blocks() as demo:
     gr.Markdown("<h1><center>HuggingGPT</center></h1>")
     gr.Markdown("<p align='center'><img src='https://i.ibb.co/qNH3Jym/logo.png' height='25' width='95'></p>")
     gr.Markdown("<p align='center' style='font-size: 20px;'>A system to connect LLMs with ML community. See our <a href='https://github.com/microsoft/JARVIS'>Project</a> and <a href='http://arxiv.org/abs/2303.17580'>Paper</a>.</p>")
+    gr.HTML('''<center><a href="https://huggingface.co/spaces/microsoft/HuggingGPT?duplicate=true"><img src="https://bit.ly/3gLdBN6" alt="Duplicate Space"></a>Duplicate the Space and run securely with your OpenAI API Key and Hugging Face Token</center>''')
     with gr.Row().style():
         with gr.Column(scale=0.85):
             openai_api_key = gr.Textbox(
@@ -167,7 +174,7 @@ with gr.Blocks() as demo:
 
     openai_api_key.submit(set_key, [state, openai_api_key], [openai_api_key])
     txt.submit(add_text, [state, chatbot, txt], [chatbot, txt]).then(bot, [state, chatbot], chatbot)
-    hugging_face_token.submit(set_token, [hugging_face_token], [hugging_face_token])
+    hugging_face_token.submit(set_token, [state, hugging_face_token], [hugging_face_token])
     btn1.click(set_key, [state, openai_api_key], [openai_api_key])
     btn2.click(add_text, [state, chatbot, txt], [chatbot, txt]).then(bot, [state, chatbot], chatbot)
     btn3.click(set_token, [state, hugging_face_token], [hugging_face_token])
