@@ -77,12 +77,7 @@ def load_pipes(local_deployment):
     controlnet_sd_pipes = {}
     if local_deployment in ["full"]:
         other_pipes = {
-            "nlpconnect/vit-gpt2-image-captioning":{
-                "model": VisionEncoderDecoderModel.from_pretrained(f"{local_models}nlpconnect/vit-gpt2-image-captioning"),
-                "feature_extractor": ViTImageProcessor.from_pretrained(f"{local_models}nlpconnect/vit-gpt2-image-captioning"),
-                "tokenizer": AutoTokenizer.from_pretrained(f"{local_models}nlpconnect/vit-gpt2-image-captioning"),
-                "device": "cuda:0"
-            },
+
             # "Salesforce/blip-image-captioning-large": {
             #     "model": BlipForConditionalGeneration.from_pretrained(f"Salesforce/blip-image-captioning-large"),
             #     "processor": BlipProcessor.from_pretrained(f"Salesforce/blip-image-captioning-large"),
@@ -111,14 +106,7 @@ def load_pipes(local_deployment):
                 "model": BaseModel.from_pretrained("JorisCos/DCCRNet_Libri1Mix_enhsingle_16k"),
                 "device": "cuda:0"
             },
-            "espnet/kan-bayashi_ljspeech_vits": {
-                "model": Text2Speech.from_pretrained("espnet/kan-bayashi_ljspeech_vits"),
-                "device": "cuda:0"
-            },
-            "lambdalabs/sd-image-variations-diffusers": {
-                "model": DiffusionPipeline.from_pretrained(f"{local_models}lambdalabs/sd-image-variations-diffusers"), #torch_dtype=torch.float16
-                "device": "cuda:0"
-            },
+
             # "CompVis/stable-diffusion-v1-4": {
             #     "model": DiffusionPipeline.from_pretrained(f"CompVis/stable-diffusion-v1-4"),
             #     "device": "cuda:0"
@@ -127,10 +115,7 @@ def load_pipes(local_deployment):
             #     "model": DiffusionPipeline.from_pretrained(f"stabilityai/stable-diffusion-2-1"),
             #     "device": "cuda:0"
             # },
-            "runwayml/stable-diffusion-v1-5": {
-                "model": DiffusionPipeline.from_pretrained(f"{local_models}runwayml/stable-diffusion-v1-5"),
-                "device": "cuda:0"
-            },
+
             # "microsoft/speecht5_tts":{
             #     "processor": SpeechT5Processor.from_pretrained(f"microsoft/speecht5_tts"),
             #     "model": SpeechT5ForTextToSpeech.from_pretrained(f"microsoft/speecht5_tts"),
@@ -171,6 +156,24 @@ def load_pipes(local_deployment):
 
     if local_deployment in ["full", "standard"]:
         standard_pipes = {
+            "nlpconnect/vit-gpt2-image-captioning":{
+                "model": VisionEncoderDecoderModel.from_pretrained(f"{local_models}nlpconnect/vit-gpt2-image-captioning"),
+                "feature_extractor": ViTImageProcessor.from_pretrained(f"{local_models}nlpconnect/vit-gpt2-image-captioning"),
+                "tokenizer": AutoTokenizer.from_pretrained(f"{local_models}nlpconnect/vit-gpt2-image-captioning"),
+                "device": "cuda:0"
+            },
+            "espnet/kan-bayashi_ljspeech_vits": {
+                "model": Text2Speech.from_pretrained("espnet/kan-bayashi_ljspeech_vits"),
+                "device": "cuda:0"
+            },
+            "lambdalabs/sd-image-variations-diffusers": {
+                "model": DiffusionPipeline.from_pretrained(f"{local_models}lambdalabs/sd-image-variations-diffusers"), #torch_dtype=torch.float16
+                "device": "cuda:0"
+            },
+            "runwayml/stable-diffusion-v1-5": {
+                "model": DiffusionPipeline.from_pretrained(f"{local_models}runwayml/stable-diffusion-v1-5"),
+                "device": "cuda:0"
+            },
             # "superb/wav2vec2-base-superb-ks": {
             #     "model": pipeline(task="audio-classification", model=f"superb/wav2vec2-base-superb-ks"), 
             #     "device": "cuda:0"
