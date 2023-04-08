@@ -156,20 +156,20 @@ def load_pipes(local_deployment):
 
     if local_deployment in ["full", "standard"]:
         standard_pipes = {
-            "nlpconnect/vit-gpt2-image-captioning":{
-                "model": VisionEncoderDecoderModel.from_pretrained(f"{local_models}nlpconnect/vit-gpt2-image-captioning"),
-                "feature_extractor": ViTImageProcessor.from_pretrained(f"{local_models}nlpconnect/vit-gpt2-image-captioning"),
-                "tokenizer": AutoTokenizer.from_pretrained(f"{local_models}nlpconnect/vit-gpt2-image-captioning"),
-                "device": "cuda:0"
-            },
-            "espnet/kan-bayashi_ljspeech_vits": {
-                "model": Text2Speech.from_pretrained("espnet/kan-bayashi_ljspeech_vits"),
-                "device": "cuda:0"
-            },
-            "lambdalabs/sd-image-variations-diffusers": {
-                "model": DiffusionPipeline.from_pretrained(f"{local_models}lambdalabs/sd-image-variations-diffusers"), #torch_dtype=torch.float16
-                "device": "cuda:0"
-            },
+            # "nlpconnect/vit-gpt2-image-captioning":{
+            #     "model": VisionEncoderDecoderModel.from_pretrained(f"{local_models}nlpconnect/vit-gpt2-image-captioning"),
+            #     "feature_extractor": ViTImageProcessor.from_pretrained(f"{local_models}nlpconnect/vit-gpt2-image-captioning"),
+            #     "tokenizer": AutoTokenizer.from_pretrained(f"{local_models}nlpconnect/vit-gpt2-image-captioning"),
+            #     "device": "cuda:0"
+            # },
+            # "espnet/kan-bayashi_ljspeech_vits": {
+            #     "model": Text2Speech.from_pretrained("espnet/kan-bayashi_ljspeech_vits"),
+            #     "device": "cuda:0"
+            # },
+            # "lambdalabs/sd-image-variations-diffusers": {
+            #     "model": DiffusionPipeline.from_pretrained(f"{local_models}lambdalabs/sd-image-variations-diffusers"), #torch_dtype=torch.float16
+            #     "device": "cuda:0"
+            # },
             "runwayml/stable-diffusion-v1-5": {
                 "model": DiffusionPipeline.from_pretrained(f"{local_models}runwayml/stable-diffusion-v1-5"),
                 "device": "cuda:0"
@@ -182,10 +182,10 @@ def load_pipes(local_deployment):
                 "model": pipeline(task="automatic-speech-recognition", model=f"{local_models}openai/whisper-base"), 
                 "device": "cuda:0"
             },
-            "microsoft/speecht5_asr": {
-                "model": pipeline(task="automatic-speech-recognition", model=f"{local_models}microsoft/speecht5_asr"), 
-                "device": "cuda:0"
-            },
+            # "microsoft/speecht5_asr": {
+            #     "model": pipeline(task="automatic-speech-recognition", model=f"{local_models}microsoft/speecht5_asr"), 
+            #     "device": "cuda:0"
+            # },
             "Intel/dpt-large": {
                 "model": pipeline(task="depth-estimation", model=f"{local_models}Intel/dpt-large"), 
                 "device": "cuda:0"
@@ -206,10 +206,10 @@ def load_pipes(local_deployment):
             #     "model": pipeline(task="zero-shot-image-classification", model=f"openai/clip-vit-large-patch14"), 
             #     "device": "cuda:0"
             # },
-            "google/owlvit-base-patch32": {
-                "model": pipeline(task="zero-shot-object-detection", model=f"{local_models}google/owlvit-base-patch32"), 
-                "device": "cuda:0"
-            },
+            # "google/owlvit-base-patch32": {
+            #     "model": pipeline(task="zero-shot-object-detection", model=f"{local_models}google/owlvit-base-patch32"), 
+            #     "device": "cuda:0"
+            # },
             # "microsoft/DialoGPT-medium": {
             #     "model": pipeline(task="conversational", model=f"microsoft/DialoGPT-medium"), 
             #     "device": "cuda:0"
