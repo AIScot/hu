@@ -95,8 +95,8 @@ class Client:
 
     def bot(self, messages):
         if len(self.OPENAI_KEY) == 0 or not self.OPENAI_KEY.startswith("sk-") or len(self.HUGGINGFACE_TOKEN) == 0 or not self.HUGGINGFACE_TOKEN.startswith("hf_"):
-            return messages
-        message = chat_huggingface(self.all_messages, self.OPENAI_KEY, self.HUGGINGFACE_TOKEN)["message"]
+            return messages, {}
+        message, results = chat_huggingface(self.all_messages, self.OPENAI_KEY, self.HUGGINGFACE_TOKEN)
         urls, image_urls, audio_urls, video_urls = self.extract_medias(message)
         self.add_message(message, "assistant")
         messages[-1][1] = message
@@ -118,9 +118,12 @@ class Client:
                 messages = messages + [((None, (f"public/{video_url}",)))]
             # else:
             #     messages = messages + [((None, (f"{video_url}",)))]
-        return messages
-
-with gr.Blocks() as demo:
+        # replace int key to string key
+        results = {str(k): v for k, v in results.items()}
+        return messages, results
+    
+css = ".json {height: 527px; overflow: scroll;} .json-holder {height: 527px; overflow: scroll;}"
+with gr.Blocks(css=css) as demo:
     state = gr.State(value={"client": Client()})
     gr.Markdown("<h1><center>HuggingGPT</center></h1>")
     gr.Markdown("<p align='center'><img src='https://i.ibb.co/qNH3Jym/logo.png' height='25' width='95'></p>")
@@ -147,8 +150,14 @@ with gr.Blocks() as demo:
             ).style(container=False)
         with gr.Column(scale=0.15, min_width=0):
             btn3 = gr.Button("Submit").style(full_height=True)
+    
 
-    chatbot = gr.Chatbot([], elem_id="chatbot").style(height=500)
+    with gr.Row().style():
+        with gr.Column(scale=0.6):
+            chatbot = gr.Chatbot([], elem_id="chatbot").style(height=500)
+        with gr.Column(scale=0.4):
+            results = gr.JSON(elem_classes="json")
+
 
     with gr.Row().style():
         with gr.Column(scale=0.85):
@@ -173,10 +182,10 @@ with gr.Blocks() as demo:
         return state["client"].bot(chatbot)
 
     openai_api_key.submit(set_key, [state, openai_api_key], [openai_api_key])
-    txt.submit(add_text, [state, chatbot, txt], [chatbot, txt]).then(bot, [state, chatbot], chatbot)
+    txt.submit(add_text, [state, chatbot, txt], [chatbot, txt]).then(bot, [state, chatbot], [chatbot, results])
     hugging_face_token.submit(set_token, [state, hugging_face_token], [hugging_face_token])
     btn1.click(set_key, [state, openai_api_key], [openai_api_key])
-    btn2.click(add_text, [state, chatbot, txt], [chatbot, txt]).then(bot, [state, chatbot], chatbot)
+    btn2.click(add_text, [state, chatbot, txt], [chatbot, txt]).then(bot, [state, chatbot], [chatbot, results])
     btn3.click(set_token, [state, hugging_face_token], [hugging_face_token])
 
     gr.Examples(

@@ -839,21 +839,21 @@ def chat_huggingface(messages, openaikey = None, huggingfacetoken = None, return
     logger.info(task_str)
 
     if "error" in task_str:
-        return {"message": str(task_str)}
+        return str(task_str), {}
     else:
         task_str = task_str.strip()
 
     if task_str == "[]":  # using LLM response for empty task
         record_case(success=False, **{"input": input, "task": [], "reason": "task parsing fail: empty", "op": "chitchat"})
         response = chitchat(messages, openaikey)
-        return {"message": response}
+        return response, {}
     try:
         tasks = json.loads(task_str)
     except Exception as e:
         logger.debug(e)
         response = chitchat(messages, openaikey)
         record_case(success=False, **{"input": input, "task": task_str, "reason": "task parsing fail", "op":"chitchat"})
-        return {"message": response}
+        return response, {}
     
 
     tasks = unfold(tasks)
@@ -908,4 +908,4 @@ def chat_huggingface(messages, openaikey = None, huggingfacetoken = None, return
     answer = {"message": response}
     record_case(success=True, **{"input": input, "task": task_str, "results": results, "response": response, "during": during, "op":"response"})
     logger.info(f"response: {response}")
-    return answer
+    return response, results
