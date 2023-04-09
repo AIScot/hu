@@ -754,7 +754,7 @@ def run_task(input, command, results, openaikey = None, huggingfacetoken = None)
             return False
     elif task in ["summarization", "translation", "conversational", "text-generation", "text2text-generation"]: # ChatGPT Can do
         best_model_id = "ChatGPT"
-        reason = "ChatGPT is the best model for this task."
+        reason = "ChatGPT performs well on some NLP tasks as well."
         choose = {"id": best_model_id, "reason": reason}
         messages = [{
             "role": "user",
@@ -843,10 +843,6 @@ def chat_huggingface(messages, openaikey = None, huggingfacetoken = None, return
     else:
         task_str = task_str.strip()
 
-    if task_str == "[]":  # using LLM response for empty task
-        record_case(success=False, **{"input": input, "task": [], "reason": "task parsing fail: empty", "op": "chitchat"})
-        response = chitchat(messages, openaikey)
-        return response, {}
     try:
         tasks = json.loads(task_str)
     except Exception as e:
@@ -854,6 +850,19 @@ def chat_huggingface(messages, openaikey = None, huggingfacetoken = None, return
         response = chitchat(messages, openaikey)
         record_case(success=False, **{"input": input, "task": task_str, "reason": "task parsing fail", "op":"chitchat"})
         return response, {}
+
+    if task_str == "[]":  # using LLM response for empty task
+        record_case(success=False, **{"input": input, "task": [], "reason": "task parsing fail: empty", "op": "chitchat"})
+        response = chitchat(messages, openaikey)
+        return response, {}
+
+    if len(tasks)==1 and tasks[0]["task"] in ["summarization", "translation", "conversational", "text-generation", "text2text-generation"]:
+        record_case(success=True, **{"input": input, "task": tasks, "reason": "task parsing fail: empty", "op": "chitchat"})
+        response = chitchat(messages, openaikey)
+        best_model_id = "ChatGPT"
+        reason = "ChatGPT performs well on some NLP tasks as well."
+        choose = {"id": best_model_id, "reason": reason}
+        return response, collect_result(tasks[0], choose, {"response": response})
     
 
     tasks = unfold(tasks)

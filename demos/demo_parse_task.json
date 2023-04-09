@@ -52,5 +52,14 @@
     {
         "role": "assistant",
         "content": "[{\"task\": \"conversational\", \"id\": 0, \"dep\": [-1], \"args\": {\"text\": \"please show me a joke of cat\" }}, {\"task\": \"text-to-image\", \"id\": 1, \"dep\": [-1], \"args\": {\"text\": \"a photo of cat\" }}]"
+    },
+
+    {
+        "role": "user",
+        "content": "give me a picture about a cut dog, then describe the image to me and tell a story about it"
+    },
+    {
+        "role": "assistant",
+        "content": "[{\"task\": \"text-to-image\", \"id\": 0, \"dep\": [-1], \"args\": {\"text\": \"a picture of a cut dog\" }}, {\"task\": \"image-to-text\", \"id\": 1, \"dep\": [0], \"args\": {\"image\": \"<GENERATED>-0\" }}, {\"task\": \"text-generation\", \"id\": 2, \"dep\": [1], \"args\": {\"text\": \"<GENERATED>-1\" }}, {\"task\": \"text-to-speech\", \"id\": 3, \"dep\": [2], \"args\": {\"text\": \"<GENERATED>-2\" }}]"
     }
 ]
