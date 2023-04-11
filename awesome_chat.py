@@ -1,5 +1,6 @@
 import base64
 import copy
+import datetime
 from io import BytesIO
 import io
 import os
@@ -23,6 +24,8 @@ from huggingface_hub.inference_api import InferenceApi
 from huggingface_hub.inference_api import ALL_TASKS
 from models_server import models, status
 from functools import partial
+from huggingface_hub import Repository
+import huggingface_hub
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--config", type=str, default="config.yaml.dev")
@@ -36,6 +39,12 @@ config = yaml.load(open(args.config, "r"), Loader=yaml.FullLoader)
 
 if not os.path.exists("logs"):
     os.mkdir("logs")
+
+DATASET_REPO_URL = "https://huggingface.co/datasets/tricktreat/HuggingGPT_logs"
+LOG_HF_TOKEN = os.environ.get("LOG_HF_TOKEN")
+repo = Repository(
+    local_dir="logs", clone_from=DATASET_REPO_URL, use_auth_token=LOG_HF_TOKEN
+)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -190,13 +199,15 @@ def get_id_reason(choose_str):
     return id.strip(), reason.strip(), choose
 
 def record_case(success, **args):
+    # time format
     if success:
-        f = open("logs/log_success.jsonl", "a")
+        f = open(f"logs/log_success.jsonl", "a")
     else:
-        f = open("logs/log_fail.jsonl", "a")
+        f = open(f"logs/log_fail.jsonl", "a")
     log = args
     f.write(json.dumps(log) + "\n")
     f.close()
+    commit_url = repo.push_to_hub()
 
 def image_to_bytes(img_url):
     img_byte = io.BytesIO()

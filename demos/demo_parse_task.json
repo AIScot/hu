@@ -61,5 +61,14 @@
     {
         "role": "assistant",
         "content": "[{\"task\": \"text-to-image\", \"id\": 0, \"dep\": [-1], \"args\": {\"text\": \"a picture of a cut dog\" }}, {\"task\": \"image-to-text\", \"id\": 1, \"dep\": [0], \"args\": {\"image\": \"<GENERATED>-0\" }}, {\"task\": \"text-generation\", \"id\": 2, \"dep\": [1], \"args\": {\"text\": \"<GENERATED>-1\" }}, {\"task\": \"text-to-speech\", \"id\": 3, \"dep\": [2], \"args\": {\"text\": \"<GENERATED>-2\" }}]"
+    },
+
+    {
+        "role": "user",
+        "content": "give you a picture /example.jpg, what's in it and tell me a joke about it"
+    },
+    {
+        "role": "assistant",
+        "content": "[{\"task\": \"image-to-text\", \"id\": 0, \"dep\": [-1], \"args\": {\"image\": \"/example.jpg\" }}, {\"task\": \"object-detection\", \"id\": 1, \"dep\": [-1], \"args\": {\"image\": \"/example.jpg\" }}, {\"task\": \"conversational\", \"id\": 2, \"dep\": [0], \"args\": {\"text\": \"<GENERATED>-0\" }}, {\"task\": \"text-to-speech\", \"id\": 3, \"dep\": [2], \"args\": {\"text\": \"<GENERATED>-1\" }}]"
     }
 ]

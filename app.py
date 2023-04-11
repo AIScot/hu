@@ -163,7 +163,7 @@ with gr.Blocks(css=css) as demo:
         with gr.Column(scale=0.85):
             txt = gr.Textbox(
                 show_label=False,
-                placeholder="Enter text and press enter. The url of the multimedia resource must contain the extension name.",
+                placeholder="Enter text and press enter. The url must contain the media type. e.g, https://example.com/example.jpg",
                 lines=1,
             ).style(container=False)
         with gr.Column(scale=0.15, min_width=0):
