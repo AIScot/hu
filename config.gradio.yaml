@@ -4,7 +4,7 @@ huggingface:
   token: # required: huggingface token @ https://huggingface.co/settings/tokens
 dev: false
 debug: true
-log_file: logs/debug.log
+log_file: logs/debug_TIMESTAMP.log
 model: text-davinci-003 # text-davinci-003
 use_completion: true
 inference_mode: hybrid # local, huggingface or hybrid

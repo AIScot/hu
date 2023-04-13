@@ -40,6 +40,8 @@ config = yaml.load(open(args.config, "r"), Loader=yaml.FullLoader)
 if not os.path.exists("logs"):
     os.mkdir("logs")
 
+now = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+
 DATASET_REPO_URL = "https://huggingface.co/datasets/tricktreat/HuggingGPT_logs"
 LOG_HF_TOKEN = os.environ.get("LOG_HF_TOKEN")
 repo = Repository(
@@ -58,6 +60,7 @@ logger.addHandler(handler)
 
 log_file = config["log_file"]
 if log_file:
+    log_file = log_file.replace("TIMESTAMP", now)
     filehandler = logging.FileHandler(log_file)
     filehandler.setLevel(logging.DEBUG)
     filehandler.setFormatter(formatter)
@@ -200,14 +203,15 @@ def get_id_reason(choose_str):
 
 def record_case(success, **args):
     # time format
+    global now
     if success:
-        f = open(f"logs/log_success.jsonl", "a")
+        f = open(f"logs/log_success_{now}.jsonl", "a")
     else:
-        f = open(f"logs/log_fail.jsonl", "a")
+        f = open(f"logs/log_fail_{now}.jsonl", "a")
     log = args
     f.write(json.dumps(log) + "\n")
     f.close()
-    commit_url = repo.push_to_hub()
+    commit_url = repo.push_to_hub(blocking=True)
 
 def image_to_bytes(img_url):
     img_byte = io.BytesIO()

@@ -10,22 +10,21 @@ os.makedirs("public/images", exist_ok=True)
 os.makedirs("public/audios", exist_ok=True)
 os.makedirs("public/videos", exist_ok=True)
 
+HUGGINGFACE_TOKEN = os.environ.get("HUGGINGFACE_TOKEN")
+OPENAI_KEY = os.environ.get("OPENAI_KEY")
+
 class Client:
     def __init__(self) -> None:
-        self.OPENAI_KEY = ""
-        self.HUGGINGFACE_TOKEN = ""
+        self.OPENAI_KEY = OPENAI_KEY
+        self.HUGGINGFACE_TOKEN = HUGGINGFACE_TOKEN
         self.all_messages = []
 
     def set_key(self, openai_key):
         self.OPENAI_KEY = openai_key
-        if len(self.HUGGINGFACE_TOKEN)>0:
-            gr.update(visible = True)
         return self.OPENAI_KEY
 
     def set_token(self, huggingface_token):
         self.HUGGINGFACE_TOKEN = huggingface_token
-        if len(self.OPENAI_KEY)>0:
-            gr.update(visible = True)
         return self.HUGGINGFACE_TOKEN
     
     def add_message(self, content, role):
@@ -60,7 +59,7 @@ class Client:
         return urls, image_urls, audio_urls, video_urls
 
     def add_text(self, messages, message):
-        if len(self.OPENAI_KEY) == 0 or not self.OPENAI_KEY.startswith("sk-") or len(self.HUGGINGFACE_TOKEN) == 0 or not self.HUGGINGFACE_TOKEN.startswith("hf_"):
+        if not self.OPENAI_KEY or not self.OPENAI_KEY.startswith("sk-") or not self.HUGGINGFACE_TOKEN or not self.HUGGINGFACE_TOKEN.startswith("hf_"):
             return messages, "Please set your OpenAI API key and Hugging Face token first!!!"
         self.add_message(message, "user")
         messages = messages + [(message, None)]
@@ -94,7 +93,7 @@ class Client:
         return messages, ""
 
     def bot(self, messages):
-        if len(self.OPENAI_KEY) == 0 or not self.OPENAI_KEY.startswith("sk-") or len(self.HUGGINGFACE_TOKEN) == 0 or not self.HUGGINGFACE_TOKEN.startswith("hf_"):
+        if not self.OPENAI_KEY or not self.OPENAI_KEY.startswith("sk-") or not self.HUGGINGFACE_TOKEN or not self.HUGGINGFACE_TOKEN.startswith("hf_"):
             return messages, {}
         message, results = chat_huggingface(self.all_messages, self.OPENAI_KEY, self.HUGGINGFACE_TOKEN)
         urls, image_urls, audio_urls, video_urls = self.extract_medias(message)
@@ -129,27 +128,29 @@ with gr.Blocks(css=css) as demo:
     gr.Markdown("<p align='center'><img src='https://i.ibb.co/qNH3Jym/logo.png' height='25' width='95'></p>")
     gr.Markdown("<p align='center' style='font-size: 20px;'>A system to connect LLMs with ML community. See our <a href='https://github.com/microsoft/JARVIS'>Project</a> and <a href='http://arxiv.org/abs/2303.17580'>Paper</a>.</p>")
     gr.HTML('''<center><a href="https://huggingface.co/spaces/microsoft/HuggingGPT?duplicate=true"><img src="https://bit.ly/3gLdBN6" alt="Duplicate Space"></a>Duplicate the Space and run securely with your OpenAI API Key and Hugging Face Token</center>''')
-    with gr.Row().style():
-        with gr.Column(scale=0.85):
-            openai_api_key = gr.Textbox(
-                show_label=False,
-                placeholder="Set your OpenAI API key here and press Enter",
-                lines=1,
-                type="password"
-            ).style(container=False)
-        with gr.Column(scale=0.15, min_width=0):
-            btn1 = gr.Button("Submit").style(full_height=True)
+    if not OPENAI_KEY:
+        with gr.Row().style():
+            with gr.Column(scale=0.85):
+                openai_api_key = gr.Textbox(
+                    show_label=False,
+                    placeholder="Set your OpenAI API key here and press Enter",
+                    lines=1,
+                    type="password"
+                ).style(container=False)
+            with gr.Column(scale=0.15, min_width=0):
+                btn1 = gr.Button("Submit").style(full_height=True)
 
-    with gr.Row().style():
-        with gr.Column(scale=0.85):
-            hugging_face_token = gr.Textbox(
-                show_label=False,
-                placeholder="Set your Hugging Face Token here and press Enter",
-                lines=1,
-                type="password"
-            ).style(container=False)
-        with gr.Column(scale=0.15, min_width=0):
-            btn3 = gr.Button("Submit").style(full_height=True)
+    if not HUGGINGFACE_TOKEN:
+        with gr.Row().style():
+            with gr.Column(scale=0.85):
+                hugging_face_token = gr.Textbox(
+                    show_label=False,
+                    placeholder="Set your Hugging Face Token here and press Enter",
+                    lines=1,
+                    type="password"
+                ).style(container=False)
+            with gr.Column(scale=0.15, min_width=0):
+                btn3 = gr.Button("Submit").style(full_height=True)
     
 
     with gr.Row().style():
@@ -181,12 +182,17 @@ with gr.Blocks(css=css) as demo:
     def bot(state, chatbot):
         return state["client"].bot(chatbot)
 
-    openai_api_key.submit(set_key, [state, openai_api_key], [openai_api_key])
+    if not OPENAI_KEY:
+        openai_api_key.submit(set_key, [state, openai_api_key], [openai_api_key])
+        btn1.click(set_key, [state, openai_api_key], [openai_api_key])
+
+    if not HUGGINGFACE_TOKEN:
+        hugging_face_token.submit(set_token, [state, hugging_face_token], [hugging_face_token])
+        btn3.click(set_token, [state, hugging_face_token], [hugging_face_token])
+    
     txt.submit(add_text, [state, chatbot, txt], [chatbot, txt]).then(bot, [state, chatbot], [chatbot, results])
-    hugging_face_token.submit(set_token, [state, hugging_face_token], [hugging_face_token])
-    btn1.click(set_key, [state, openai_api_key], [openai_api_key])
     btn2.click(add_text, [state, chatbot, txt], [chatbot, txt]).then(bot, [state, chatbot], [chatbot, results])
-    btn3.click(set_token, [state, hugging_face_token], [hugging_face_token])
+    
 
     gr.Examples(
         examples=["Given a collection of image A: /examples/a.jpg, B: /examples/b.jpg, C: /examples/c.jpg, please tell me how many zebras in these picture?",
