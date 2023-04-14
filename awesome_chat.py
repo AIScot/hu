@@ -25,7 +25,6 @@ from huggingface_hub.inference_api import ALL_TASKS
 from models_server import models, status
 from functools import partial
 from huggingface_hub import Repository
-import huggingface_hub
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--config", type=str, default="config.yaml.dev")
@@ -44,9 +43,10 @@ now = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
 DATASET_REPO_URL = "https://huggingface.co/datasets/tricktreat/HuggingGPT_logs"
 LOG_HF_TOKEN = os.environ.get("LOG_HF_TOKEN")
-repo = Repository(
-    local_dir="logs", clone_from=DATASET_REPO_URL, use_auth_token=LOG_HF_TOKEN
-)
+if LOG_HF_TOKEN:
+    repo = Repository(
+        local_dir="logs", clone_from=DATASET_REPO_URL, use_auth_token=LOG_HF_TOKEN
+    )
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -204,6 +204,7 @@ def get_id_reason(choose_str):
 def record_case(success, **args):
     # time format
     global now
+    global LOG_HF_TOKEN
     if success:
         f = open(f"logs/log_success_{now}.jsonl", "a")
     else:
@@ -211,7 +212,8 @@ def record_case(success, **args):
     log = args
     f.write(json.dumps(log) + "\n")
     f.close()
-    commit_url = repo.push_to_hub(blocking=True)
+    if LOG_HF_TOKEN:
+        commit_url = repo.push_to_hub(blocking=True)
 
 def image_to_bytes(img_url):
     img_byte = io.BytesIO()
