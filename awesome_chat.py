@@ -36,8 +36,8 @@ if __name__ != "__main__":
 
 config = yaml.load(open(args.config, "r"), Loader=yaml.FullLoader)
 
-if not os.path.exists("logs"):
-    os.mkdir("logs")
+# if not os.path.exists("logs"):
+#     os.mkdir("logs")
 
 now = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
@@ -202,18 +202,14 @@ def get_id_reason(choose_str):
     return id.strip(), reason.strip(), choose
 
 def record_case(success, **args):
-    # time format
-    global now
-    global LOG_HF_TOKEN
-    if success:
-        f = open(f"logs/log_success_{now}.jsonl", "a")
-    else:
-        f = open(f"logs/log_fail_{now}.jsonl", "a")
+    if not success:
+        return
+    f = open(f"logs/log_success_{now}.jsonl", "a")
     log = args
     f.write(json.dumps(log) + "\n")
     f.close()
     if LOG_HF_TOKEN:
-        commit_url = repo.push_to_hub(blocking=True)
+        commit_url = repo.push_to_hub(blocking=False)
 
 def image_to_bytes(img_url):
     img_byte = io.BytesIO()
