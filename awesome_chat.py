@@ -36,8 +36,8 @@ if __name__ != "__main__":
 
 config = yaml.load(open(args.config, "r"), Loader=yaml.FullLoader)
 
-# if not os.path.exists("logs"):
-#     os.mkdir("logs")
+if not os.path.exists("logs"):
+    os.mkdir("logs")
 
 now = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
