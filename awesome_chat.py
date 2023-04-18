@@ -908,7 +908,7 @@ def chat_huggingface(messages, openaikey = None, huggingfacetoken = None, return
         if num_threads == len(threads):
             time.sleep(0.5)
             retry += 1
-        if retry > 160:
+        if retry > 80:
             logger.debug("User has waited too long, Loop break.")
             break
         if len(tasks) == 0:
