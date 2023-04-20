@@ -250,10 +250,10 @@ def load_pipes(local_deployment):
             #     "model": pipeline(task="translation", model=f"t5-base"), 
             #     "device": "cuda:0"
             # },
-            "impira/layoutlm-document-qa": {
-                "model": pipeline(task="document-question-answering", model=f"{local_models}impira/layoutlm-document-qa"), 
-                "device": "cuda:0"
-            },
+            # "impira/layoutlm-document-qa": {
+            #     "model": pipeline(task="document-question-answering", model=f"{local_models}impira/layoutlm-document-qa"), 
+            #     "device": "cuda:0"
+            # },
             "ydshieh/vit-gpt2-coco-en": {
                 "model": pipeline(task="image-to-text", model=f"{local_models}ydshieh/vit-gpt2-coco-en"), 
                 "device": "cuda:0"
